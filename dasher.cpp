@@ -111,6 +111,8 @@ int main() {
     Texture2D foreground = LoadTexture("textures/foreground.png");
     float bgX{}, mgX{}, fgX{};
 
+    bool collision{};
+
     while(!WindowShouldClose()){
         
         const float dT{GetFrameTime()};
@@ -187,16 +189,53 @@ int main() {
             nebulae[i] = UpdateAnimData(nebulae[i], dT, 7);
         }
 
-        // Render Images
-        // Scarfy
-        DrawTextureRec(scarfy, scarfyData.rec, scarfyData.pos, WHITE);
-
-        // Nebulae
-        for(int i = 0; i < sizeOfNebulae; i++)
+        for(AnimData nebula : nebulae)
         {
-            DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
-        };
+            float pad{50};
 
+            Rectangle nebRec
+            {
+                nebula.pos.x + pad,
+                nebula.pos.y + pad,
+                nebula.rec.width - 2*pad,
+                nebula.rec.height - 2*pad
+            };
+
+            Rectangle scarfyRec
+            {
+                scarfyData.pos.x,
+                scarfyData.pos.y,
+                scarfyData.rec.width,
+                scarfyData.rec.height
+            };
+            if(CheckCollisionRecs(nebRec, scarfyRec))
+            {
+                collision = true;
+            }
+        }
+
+        if(collision)
+        {
+            DrawText("Game Over!", windowDimensions[0]/4, windowDimensions[1]/2, 60, BLACK);
+            DrawText("Game Over!", windowDimensions[0]/4 - 5, windowDimensions[1]/2, 60, WHITE);
+        }
+        else if (scarfyData.pos.x >= finishLine)
+        {
+            DrawText("You Win!", windowDimensions[0]/4 , windowDimensions[1]/2, 60, BLACK);
+            DrawText("You Win!", windowDimensions[0]/4 - 5, windowDimensions[1]/2, 60, WHITE);
+        }
+        else
+        {
+            // Render Images
+            // Scarfy
+            DrawTextureRec(scarfy, scarfyData.rec, scarfyData.pos, WHITE);
+
+            // Nebulae
+            for(int i = 0; i < sizeOfNebulae; i++)
+            {
+                DrawTextureRec(nebula, nebulae[i].rec, nebulae[i].pos, WHITE);
+            };
+        }
 
         EndDrawing();
     }
